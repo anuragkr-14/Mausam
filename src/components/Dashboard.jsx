@@ -8,6 +8,7 @@ import RecommendationCard from "./RecommendationCard";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 import { languages } from "../data/languages";
+import { profiles } from "../data/mausamData";
 import { getGreeting } from "../utils/timeUtils";
 import { getPersonalizedData } from "../utils/personalization";
 
@@ -23,6 +24,13 @@ export default function Dashboard({
   setLanguage,
 }) {
   const text = languages[language] || languages.en;
+
+  // App stores the selected profile as its id (for example, "fitness").
+  // Resolve that id to the complete profile object before rendering the dashboard.
+  const profileData =
+    typeof profile === "string" ? profiles[profile] : profile;
+  const profileId = profileData?.id || (typeof profile === "string" ? profile : null);
+  const profileTheme = profileData?.theme || { soft: "bg-slate-50", text: "text-slate-700" };
 
   /* -------------------------------------------------------
      TRANSLATION HELPERS
@@ -42,7 +50,7 @@ export default function Dashboard({
   ------------------------------------------------------- */
 
   const personalized = getPersonalizedData(
-    profile?.id,
+    profileId,
     weather
   );
 
@@ -54,7 +62,7 @@ export default function Dashboard({
 
   const calculateScore = () => {
     if (!weather) {
-      return Number(profile?.score) || 0;
+      return Number(profileData?.score) || 0;
     }
 
     const rain = weather.precipitationProbability ?? 0;
@@ -66,7 +74,7 @@ export default function Dashboard({
 
     let score = 100;
 
-    switch (profile?.id) {
+    switch (profileId) {
       case "fitness":
         score -= Math.min(rain * 0.35, 35);
         score -= Math.min(Math.max(uv - 5, 0) * 4, 20);
@@ -139,7 +147,7 @@ export default function Dashboard({
 
   const getProfileMetrics = () => {
     if (!weather) {
-      return (profile?.metrics || []).map((metric) => ({
+      return (profileData?.metrics || []).map((metric) => ({
         ...metric,
         label: metric.labelKey ? t(metric.labelKey, metric.label) : metric.label,
       }));
@@ -158,7 +166,7 @@ export default function Dashboard({
         ? `${weather.visibility} ${t("kmUnit")}`
         : "--";
 
-    switch (profile?.id) {
+    switch (profileId) {
       case "fitness":
         return [
           {
@@ -341,13 +349,13 @@ export default function Dashboard({
             </p>
 
             <h2 className="heading-font mt-1 text-2xl font-bold tracking-tight text-slate-900">
-              {t(profile?.fullNameKey || profile?.nameKey || "yourWeather", profile?.fullName || profile?.name || t("yourWeather"))}
+              {t(profileData?.fullNameKey || profileData?.nameKey || "yourWeather", profileData?.fullName || profileData?.name || t("yourWeather"))}
             </h2>
 
           </div>
 
           <ProfileSwitcher
-            selectedProfile={profile?.id}
+            selectedProfile={profileId}
             onChange={setProfile}
             language={language}
           />
@@ -393,7 +401,7 @@ export default function Dashboard({
 
         {weatherError && (
           <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
-            {weatherError}
+            {t(weatherError, weatherError)}
           </div>
         )}
 
@@ -420,8 +428,8 @@ export default function Dashboard({
           {/* PERSONALIZED INSIGHT */}
 
           <PersonalizedInsight
-            profile={profile}
-            theme={profile?.theme}
+            profile={profileData}
+            theme={profileTheme}
             weather={weather}
             personalized={personalized}
             language={language}
@@ -437,7 +445,7 @@ export default function Dashboard({
               <div>
 
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-                  {profile?.scoreLabel ||
+                  {profileData?.scoreLabel ||
                     t("personalizedScore", "PERSONALIZED SCORE")}
                 </p>
 
@@ -541,7 +549,7 @@ export default function Dashboard({
                   <MetricCard
                     key={`${metric.labelKey || metric.label}-${index}`}
                     metric={metric}
-                    theme={profile?.theme}
+                    theme={profileTheme}
                     language={language}
                   />
                 ))

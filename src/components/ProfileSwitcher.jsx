@@ -6,7 +6,7 @@ import { languages } from "../data/languages";
 export default function ProfileSwitcher({ selectedProfile, onChange, language = "en" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const current = profiles[selectedProfile];
+  const current = profiles[selectedProfile] || profiles.fitness;
   const CurrentIcon = current.icon;
   const text = languages[language] || languages.en;
   const t = (key, fallback = "") => text[key] ?? languages.en[key] ?? fallback;

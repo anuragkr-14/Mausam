@@ -11,11 +11,13 @@ export default function PersonalizedInsight({ profile, theme, personalized, weat
     : t("tryAgainShortly");
   const recommendation = t(personalized?.recommendationKey || "generalAdvice", t("generalAdvice"));
 
+  const safeTheme = theme || { soft: "bg-slate-50", text: "text-slate-700" };
+
   return (
-    <div className={`relative overflow-hidden rounded-[28px] ${theme.soft} p-6 sm:p-7`}>
+    <div className={`relative overflow-hidden rounded-[28px] ${safeTheme.soft} p-6 sm:p-7`}>
       <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/60 blur-2xl" />
       <div className="relative">
-        <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-[.15em] ${theme.text}`}>
+        <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-[.15em] ${safeTheme.text}`}>
           <Sparkles size={14} />
           {t("personalizedFor")} {t(profile?.nameKey || "weather")}
         </div>

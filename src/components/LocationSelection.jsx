@@ -4,7 +4,7 @@ import { cities } from "../data/mausamData";
 import { languages } from "../data/languages";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-export default function LocationSelection({ selectedCity, onSelect, onContinue, onBack, language = "en" }) {
+export default function LocationSelection({ selectedCity, onSelect, onContinue, onBack, language = "en", setLanguage }) {
   const [search, setSearch] = useState("");
   const text = languages[language] || languages.en;
   const t = (key, fallback = "") => text[key] ?? languages.en[key] ?? fallback;
