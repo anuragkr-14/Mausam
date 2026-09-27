@@ -1,16 +1,57 @@
-import { MapPin } from "lucide-react";
+import { languages } from "../data/languages";
 
-export default function WeatherHero({ city }) {
-  return (
-    <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 p-6 text-white shadow-xl sm:p-8">
-      <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-sky-400/20 blur-3xl"/>
-      <div className="relative">
-        <div className="flex items-center gap-2 text-sm text-white/65"><MapPin size={15}/>{city.name}, {city.state.split(",")[0]}</div>
-        <div className="mt-8 flex items-center justify-between">
-          <div><div className="heading-font text-7xl font-bold tracking-[-.07em] sm:text-8xl">{city.temperature}</div><p className="mt-2 text-sm text-white/60">Feels like {city.feelsLike}</p></div>
-          <div className="text-7xl drop-shadow-lg sm:text-8xl">{city.icon}</div>
+export default function WeatherHero({ city, weather, weatherLoading, language = "en" }) {
+  const text = languages[language] || languages.en;
+  const t = (key, fallback = "") => text[key] ?? languages.en[key] ?? fallback;
+
+  if (weatherLoading) {
+    return (
+      <div className="rounded-[32px] bg-white p-8 shadow-sm">
+        <div className="animate-pulse">
+          <div className="h-4 w-24 rounded bg-slate-200" />
+          <div className="mt-6 h-16 w-40 rounded bg-slate-200" />
+          <div className="mt-4 h-4 w-32 rounded bg-slate-200" />
         </div>
-        <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5"><p className="font-medium">{city.condition}</p><p className="text-sm text-white/55">Today · Demo data</p></div>
+        <p className="sr-only">{t("loadingWeather")}</p>
+      </div>
+    );
+  }
+
+  if (!weather) {
+    return (
+      <div className="rounded-[32px] bg-white p-8 shadow-sm">
+        <p className="text-slate-500">{t("weatherUnavailable")}</p>
+      </div>
+    );
+  }
+
+  const weatherDescription = t(weather.weatherDescriptionKey || "overcast");
+
+  return (
+    <div className="relative overflow-hidden rounded-[32px] bg-white p-7 shadow-sm sm:p-9">
+      <div className="relative z-10">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{t("currentWeather")}</p>
+            <h2 className="mt-2 text-xl font-bold text-slate-900">{city?.name || t("defaultCity")}</h2>
+          </div>
+          <div className="text-5xl" aria-label={weatherDescription}>{weather.emoji}</div>
+        </div>
+
+        <div className="mt-8 flex items-end gap-4">
+          <span className="text-7xl font-extrabold tracking-[-0.07em] text-slate-900">{weather.temperature}°</span>
+          <div className="pb-2">
+            <p className="text-sm font-semibold text-slate-700">{weatherDescription}</p>
+            <p className="mt-1 text-sm text-slate-400">{t("feelsLike")} {weather.feelsLike}°C</p>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-2xl bg-sky-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">{t("humidity")}</p><p className="mt-1 font-bold text-slate-800">{weather.humidity}%</p></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">{t("uvIndex")}</p><p className="mt-1 font-bold text-slate-800">{weather.uvIndex}</p></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">{t("wind")}</p><p className="mt-1 font-bold text-slate-800">{weather.windSpeed} {t("kmh")}</p></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase text-slate-400">{t("rainProbability")}</p><p className="mt-1 font-bold text-slate-800">{weather.precipitationProbability}{t("percent")}</p></div>
+        </div>
       </div>
     </div>
   );
